@@ -11,6 +11,8 @@ import {
   Alert,
 } from "react-native";
 
+import Checkbox from "expo-checkbox";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -19,6 +21,7 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const [task, setTask] = useState([]);
   const [newTask, setNewTask] = useState("");
+  const [checkedList, setCheckedList] = useState([]);
 
   async function addTask() {
     if (newTask === "") {
@@ -75,6 +78,13 @@ export default function Home() {
     saveData();
   }, [task]);
 
+  function removeSelected(item) {
+    setCheckedList(checkedList.filter((tasks) => tasks != item));
+  }
+  function addSelected(item) {
+    setCheckedList([...checkedList, item]);
+  }
+
   return (
     <KeyboardAvoidingView
       keyboardVerticalOffset={0}
@@ -91,7 +101,18 @@ export default function Home() {
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (
               <View style={styles.containerView}>
-                <Text style={styles.containerViewText}>{item}</Text>
+                <View style={styles.leftContent}>
+                  <Checkbox
+                    style={styles.checkbox}
+                    value={checkedList.includes(item)}
+                    onValueChange={() => {
+                      if (checkedList.includes(item)) removeSelected(item);
+                      else addSelected(item);
+                    }}
+                  />
+                  <Text style={styles.containerViewText}>{item}</Text>
+                </View>
+
                 <TouchableOpacity onPress={() => removeTask(item)}>
                   <MaterialIcons
                     name="delete-forever"
@@ -175,10 +196,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
+  leftContent: {
+    flexDirection: "row",
+    alignContent: "center",
+    justifyContent: "center",
+  },
   containerViewText: {
     fontSize: 14,
     color: "#333",
     fontWeight: "700",
     textAlign: "center",
+    marginLeft: 10,
   },
+  checkbox: {},
 });
